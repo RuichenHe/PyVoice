@@ -2,7 +2,7 @@ import time
 from datetime import date
 import speech_recognition as sr
 
-def RecognizeSpeechFromMic(recognizer, microphone, recognizerMode):
+def recognizeSpeechFromMic(recognizer, microphone, recognizerMode):
 
     print("Ready for input:")
     if not isinstance(recognizer, sr.Recognizer):
@@ -42,11 +42,14 @@ if __name__ == "__main__":
             initAudio = recognizer.record(source)
         recognizer.recognize_vosk(initAudio)
     print("Recognizer initialized")
-    
-    while True:
-        speakContent = RecognizeSpeechFromMic(recognizer, microphone, recognizerMode)
+    keepDetection = True
+    while keepDetection:
+        speakContent = recognizeSpeechFromMic(recognizer, microphone, recognizerMode)
         print("You said: {}".format(speakContent["transcription"]))
         if speakContent["transcription"] == "what is the time now" or speakContent["transcription"] == "what time is it":
             print("Current time: " + time.strftime("%H:%M:%S", time.localtime()))
         elif speakContent["transcription"] == "what is the date today":
             print("Current date: " + str(date.today()))
+        elif speakContent["transcription"] == "detection terminate":
+            keepDetection = False
+    print("Voice Detection API terminated.")
