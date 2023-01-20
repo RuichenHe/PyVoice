@@ -1,9 +1,9 @@
 import time
-
+from datetime import date
 import speech_recognition as sr
 
-def RecognizeSpeechFromMic(recognizer, microphone):
-    
+def RecognizeSpeechFromMic(recognizer, microphone, recognizerMode):
+
     print("Ready for input:")
     if not isinstance(recognizer, sr.Recognizer):
         raise TypeError("`recognizer` must be `Recognizer` instance")
@@ -19,7 +19,9 @@ def RecognizeSpeechFromMic(recognizer, microphone):
     }
     print("Recieved signal, recognizing...")
     try:
-        response["transcription"] = recognizer.recognize_vosk(audio)
+        if recognizerMode == "VOSK":
+            temp = recognizer.recognize_vosk(audio).split(" : ")[1].replace('"', '').replace('}', '').replace('\n', '')
+            response["transcription"] = temp
     except sr.RequestError:
         response["success"] = False
         response["error"] = "API unavailable"
@@ -30,9 +32,21 @@ if __name__ == "__main__":
     # create recognizer and mic instances
     recognizer = sr.Recognizer()
     microphone = sr.Microphone()
+    recognizerMode = "VOSK"
     print("Voice Detection API Start...")
-    time.sleep(3)
-
+    #### Initlized model here
+    ####For VOSK:
+    if recognizerMode == "VOSK":
+        initAudioFile = sr.AudioFile('init.wav')
+        with initAudioFile as source:
+            initAudio = recognizer.record(source)
+        recognizer.recognize_vosk(initAudio)
+    print("Recognizer initialized")
+    
     while True:
-        speakContent = RecognizeSpeechFromMic(recognizer, microphone)
+        speakContent = RecognizeSpeechFromMic(recognizer, microphone, recognizerMode)
         print("You said: {}".format(speakContent["transcription"]))
+        if speakContent["transcription"] == "what is the time now" or speakContent["transcription"] == "what time is it":
+            print("Current time: " + time.strftime("%H:%M:%S", time.localtime()))
+        elif speakContent["transcription"] == "what is the date today":
+            print("Current date: " + str(date.today()))
