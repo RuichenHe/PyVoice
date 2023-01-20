@@ -3,12 +3,24 @@ from datetime import date
 import speech_recognition as sr
 
 def recognizeSpeechFromMic(recognizer, microphone, recognizerMode):
+    """_summary_
 
+    Args:
+        recognizer (sr.Recognizer): voice recognizer from speech_recognition package
+        microphone (sr.Microphone): microphone handler from speech_recognition package
+        recognizerMode (string): mode to decide which API to use during operation, currently support: VOSK
+    Returns:
+        response: a dict, contains success flag, error message, and transcription result 
+    """
     print("Ready for input:")
+    #Check if the input parameter fullfills the requirement
     if not isinstance(recognizer, sr.Recognizer):
         raise TypeError("`recognizer` must be `Recognizer` instance")
     if not isinstance(microphone, sr.Microphone):
         raise TypeError("`microphone` must be `Microphone` instance")
+    if not isinstance(recognizerMode, str):
+        raise TypeError("`recognizerMode` must be `string` instance")
+    #Handle the Audio I/O input
     with microphone as source:
         recognizer.adjust_for_ambient_noise(source)
         audio = recognizer.listen(source)
@@ -20,8 +32,10 @@ def recognizeSpeechFromMic(recognizer, microphone, recognizerMode):
     print("Recieved signal, recognizing...")
     try:
         if recognizerMode == "VOSK":
+            #Segment the returned string value to obtain final voice recognition result
             temp = recognizer.recognize_vosk(audio).split(" : ")[1].replace('"', '').replace('}', '').replace('\n', '')
             response["transcription"] = temp
+    #Handle potential errors
     except sr.RequestError:
         response["success"] = False
         response["error"] = "API unavailable"
@@ -34,8 +48,8 @@ if __name__ == "__main__":
     microphone = sr.Microphone()
     recognizerMode = "VOSK"
     print("Voice Detection API Start...")
-    #### Initlized model here
-    ####For VOSK:
+    #Initlized model here
+    #For VOSK:
     if recognizerMode == "VOSK":
         initAudioFile = sr.AudioFile('init.wav')
         with initAudioFile as source:
@@ -46,6 +60,7 @@ if __name__ == "__main__":
     while keepDetection:
         speakContent = recognizeSpeechFromMic(recognizer, microphone, recognizerMode)
         print("You said: {}".format(speakContent["transcription"]))
+        #Different operations based on the voice command
         if speakContent["transcription"] == "what is the time now" or speakContent["transcription"] == "what time is it":
             print("Current time: " + time.strftime("%H:%M:%S", time.localtime()))
         elif speakContent["transcription"] == "what is the date today":
