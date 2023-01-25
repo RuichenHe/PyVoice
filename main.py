@@ -35,6 +35,21 @@ def recognizeSpeechFromMic(recognizer, microphone, recognizerMode):
             #Segment the returned string value to obtain final voice recognition result
             temp = recognizer.recognize_vosk(audio).split(" : ")[1].replace('"', '').replace('}', '').replace('\n', '')
             response["transcription"] = temp
+        elif recognizerMode == "Sphinx":
+            temp = recognizer.recognize_sphinx(audio)
+            response["transcription"] = temp
+        elif recognizerMode == "Whisper":
+            ####Currently not supported: will have a permission denied error
+            temp = recognizer.recognize_whisper(audio)
+            response["transcription"] = temp
+        elif recognizerMode == "Tensorflow":
+            ####Currently not supported: cannot detect anything
+            temp = recognizer.recognize_tensorflow(audio, 'C:/Users/RuichenHe/source/Python/PyVoice/tensorflow-data/conv_actions_frozen.pb', 'C:/Users/RuichenHe/source/Python/PyVoice/tensorflow-data/conv_actions_labels.txt')
+            response["transcription"] = temp
+        elif recognizerMode == "Google":
+            ####Currently not supported: cannot detect anything
+            temp = recognizer.recognize_google(audio)
+            response["transcription"] = temp
     #Handle potential errors
     except sr.RequestError:
         response["success"] = False
@@ -46,7 +61,7 @@ if __name__ == "__main__":
     # create recognizer and mic instances
     recognizer = sr.Recognizer()
     microphone = sr.Microphone()
-    recognizerMode = "VOSK"
+    recognizerMode = "Google"
     print("Voice Detection API Start...")
     #Initlized model here
     #For VOSK:
