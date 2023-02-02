@@ -61,7 +61,7 @@ if __name__ == "__main__":
     # create recognizer and mic instances
     recognizer = sr.Recognizer()
     microphone = sr.Microphone()
-    recognizerMode = "Google"
+    recognizerMode = "VOSK"
     print("Voice Detection API Start...")
     #Initlized model here
     #For VOSK:
